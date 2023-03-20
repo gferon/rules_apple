@@ -492,6 +492,7 @@ def _apple_xcframework_impl(ctx):
         ctx,
         # Frameworks do not have entitlements.
         entitlements = None,
+        avoid_deps = ctx.attr.avoid_deps,
         extra_linkopts = [
             "-dynamiclib",
             "-Wl,-install_name,@rpath/{name}{extension}/{name}".format(
@@ -786,6 +787,15 @@ apple_xcframework = rule(
             "_environment_plist_ios": attr.label(
                 allow_single_file = True,
                 default = "@build_bazel_rules_apple//apple/internal:environment_plist_ios",
+            ),
+            "avoid_deps": attr.label_list(
+                allow_files = True,
+                cfg = transition_support.xcframework_transition,
+                mandatory = False,
+                doc = """
+A list of library targets on which this framework depends in order to compile, but the transitive
+closure of which will not be linked into the framework's binary.
+""",
             ),
             "bundle_id": attr.string(
                 mandatory = True,
